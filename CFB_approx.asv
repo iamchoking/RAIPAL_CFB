@@ -166,7 +166,6 @@ wc_domain = [wc_domain(1) - (wc_domain(2) - wc_domain(1));wc_domain];
 
 %% Fit polynomial for wb
 [wb_poly,wb_fit] = polyfit_analyze(a_domain,wb_domain,n,"\omega_b / \omega_a",3,1.0e-3);
-% [wb_poly,wb_fit] = polyfit_analyze(a_domain,wb_domain,n,"\omega_a / \omega_b",3,1.0e-3);
 
 % [\omega_b / \omega_a] Polynomial coefficients (highest to lowest degree):
 % [330.1514673459376, -3939.920472235199, 21319.39656007634, -69182.34049371608, 150034.7654546927, -229354.9209106861, 253935.6748254774, -205870.6560746802, 121976.630364867, -52021.60108263157, 15489.35547273981, -3096.107249114025, 433.0072547668175, -57.21741621150876, -0.9670218724995983, 4.921276349693374, 1.022525952484172]
@@ -199,31 +198,6 @@ wc_domain = [wc_domain(1) - (wc_domain(2) - wc_domain(1));wc_domain];
 
 % for inverse c (b->a)
 % this is a bad idea since the solution is not unique!
-
-%% Plotting effective reduction ratio
-
-
-if ishandle(99)
-    close(99);
-end
-fig_reduction = figure(99);
-
-inv_wb_fit = 1 ./ wb_fit;
-normalized_inv_wb_fit = inv_wb_fit / max(inv_wb_fit(300:num_points,:));
-
-title("RAIPAL Crossed 4-bar Effective Reduction Ratio")
-xlabel("b(output) [deg]")
-ylabel("Normalized Torque Outupt")
-xlim([15 max(b_fit * 180 / pi)]);
-ylim([0 1]);
-hold on;
-legend;
-plot(b_fit * 180 / pi, normalized_inv_wb_fit,"DisplayName","RAIPAL Crossed 4-Bar");
-plot(b_human, inv_wb_human, "-o", "DisplayName", "Human Elbow Joint");
-hold off;
-
-exportgraphics(fig_reduction,"results/FIGURE_reduction.fig","Resolution",300)
-
 
 %% function definitions
 function [x_poly,x_fit] = polyfit_analyze(a_domain,x_domain,n,name,figure_num,err_factor)
@@ -262,7 +236,7 @@ function [x_poly,x_fit] = polyfit_analyze(a_domain,x_domain,n,name,figure_num,er
     % ylim([0 GT_b(10)]);
     hold on;
     legend;
-    plot(a_domain,x_domain,"DisplayName","Numerical Solution")
+    plot(a_domain,1 / x_domain,"DisplayName","Numerical Solution")
     plot(a_domain,abs(fit_err)/err_factor,"DisplayName",sprintf("Approximation Err. (/%.2e)",err_factor))
     hold off;
 
