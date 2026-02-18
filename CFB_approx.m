@@ -212,17 +212,18 @@ inv_wb_fit = 1 ./ wb_fit;
 normalized_inv_wb_fit = inv_wb_fit / max(inv_wb_fit(300:num_points,:));
 
 title("RAIPAL Crossed 4-bar Effective Reduction Ratio")
-xlabel("b(output) [deg]")
+xlabel("Elbow Angle [deg]")
 ylabel("Normalized Torque Outupt")
+% xlim([0 max(b_fit * 180 / pi)]);
 xlim([15 max(b_fit * 180 / pi)]);
 ylim([0 1]);
 hold on;
-legend;
+legend('location','southeast');
 plot(b_fit * 180 / pi, normalized_inv_wb_fit,"DisplayName","RAIPAL Crossed 4-Bar");
 plot(b_human, inv_wb_human, "-o", "DisplayName", "Human Elbow Joint");
 hold off;
 
-exportgraphics(fig_reduction,"results/FIGURE_reduction.fig","Resolution",300)
+exportgraphics(fig_reduction,"results/FIGURE_reduction.png","Resolution",300)
 
 
 %% function definitions
