@@ -81,7 +81,7 @@ ratio_max = 0.875;
 
 %% A simple movie about changing MOR (single plot)
 idx_start = length(a_domain);
-idx_end = 475;
+idx_end = 100;
 frame_step = -15;
 save_movie = true;
 movie_file = "videos/MOR_animation.avi";
