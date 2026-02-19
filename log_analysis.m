@@ -39,6 +39,19 @@ coeff_gc_5to3= {
 num_points = 4000;
 a_domain = linspace(0,89.13041976,num_points)' * pi / 180 ;
 
+%% Global font scaling (2x)
+font_scale = 2.0;
+% set(groot, "defaultAxesFontSize",   get(groot, "defaultAxesFontSize")   * font_scale);
+% set(groot, "defaultTextFontSize",   get(groot, "defaultTextFontSize")   * font_scale);
+% set(groot, "defaultLegendFontSize", get(groot, "defaultLegendFontSize") * font_scale);
+% set(groot, "defaultColorbarFontSize", get(groot, "defaultColorbarFontSize") * font_scale);
+set(groot, "defaultAxesFontSize",   17);
+set(groot, "defaultTextFontSize",   20);
+set(groot, "defaultLegendFontSize", 13);
+set(groot, "defaultColorbarFontSize", 20);
+%%
+load('/home/chh-railab/RAIPAL_CFB/results/v1-5_result_2026-02-09.mat')
+load('/home/chh-railab/RAIPAL_CFB/MOR/MOR_MHR.mat')
 %% Plot effective reduction ratio using polynomial coefficients
 % b(a) and wb(a) polynomial fits (highest to lowest degree)
 b_fit = polyval(cell2mat(coeff_gc_3to5), a_domain);
@@ -131,21 +144,26 @@ if save_movie
 end
 
 %%
-filename="raipal_2026-02-16-05-00-10_pitching-demo_x1.25_20.6_elbow";
+filename="raipal_2026-02-19-00-32-43_strongman-sim_55kg_clamped-clean";
 % filename="raipal_2026-02-11-14-04-39_payload_20kg";
 load("log_data/" + filename)
 load("MOR/MOR_MHR")
+
+da = a_domain(2) - a_domain(1);
+
 %% calculate log_gf_output
 log_gf_output = zeros(length(log_gf_input),1);
 
 for i = 1:length(log_gf_input)
-    log_gf_output(i) = log_gf_input(i) * log_gv_input(i) / log_gv_output(i);
+    ratio_current = inv_wb_fit(round(log_gc_input(i) / da));
+%     log_gc_input(i) - a_domain(round(log_gc_input(i) / da))
+    log_gf_output(i) = log_gf_input(i) * ratio_current;
 end
 
 %% Animating torque-speed curve with position-dependent MOR
 idx_start = 1;
 idx_end = length(log_time);
-frame_step = 2;
+frame_step = 10;
 save_movie = true;
 movie_file = "videos/ts_"+filename+".avi";
 
@@ -182,7 +200,7 @@ for idx = idx_start:frame_step:idx_end
   scatter([log_gv_input(idx)], [log_gf_input(idx)],"MarkerEdgeColor","red","LineWidth",2.0, "DisplayName", sprintf("t = %.3f",log_time(idx)))
   xlim(x_limits);
   ylim(y_limits);
-  legend;
+  legend('location','southwest');
   hold off;
 
   subplot(1,2,2);
@@ -194,11 +212,13 @@ for idx = idx_start:frame_step:idx_end
   plot(MOR_keypoints_MHR_peak(:,1) / ratio_min, MOR_keypoints_MHR_peak(:,2) * ratio_min,"r--", "DisplayName", "MOR (max. speed)");
   plot(MOR_keypoints_MHR_peak(:,1) / ratio_max, MOR_keypoints_MHR_peak(:,2) * ratio_max,"g--", "DisplayName", "MOR (max. torque)");
   plot(MOR_keypoints_MHR_peak(:,1), MOR_keypoints_MHR_peak(:,2),"b--", "DisplayName", "MOR (input)");
-  plot(MOR_keypoints_MHR_peak(:,1) * log_gv_output(idx) / log_gv_input(idx), MOR_keypoints_MHR_peak(:,2) / log_gv_output(idx) * log_gv_input(idx),"k-", "DisplayName", sprintf("MOR (gc = %.3f)",log_gc_output(idx)));
+%   ratio_current = log_gv_input(idx) / log_gv_output(idx);
+  ratio_current = inv_wb_fit(round(log_gc_input(idx) / da));
+  plot(MOR_keypoints_MHR_peak(:,1) / ratio_current, MOR_keypoints_MHR_peak(:,2) * ratio_current,"k-", "DisplayName", sprintf("MOR (gc = %.3f)",log_gc_output(idx)));
   scatter([log_gv_output(idx)], [log_gf_output(idx)],"MarkerEdgeColor","red","LineWidth",2.0, "DisplayName", sprintf("t = %.3f",log_time(idx)))
   xlim(x_limits);
   ylim(y_limits);
-  legend;
+  legend('location','southwest');
   hold off;
 
   drawnow;
