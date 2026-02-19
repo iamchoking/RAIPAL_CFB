@@ -201,11 +201,11 @@ wc_domain = [wc_domain(1) - (wc_domain(2) - wc_domain(1));wc_domain];
 % this is a bad idea since the solution is not unique!
 
 %% Plotting effective reduction ratio
-set(groot, "defaultAxesFontSize",   17);
-set(groot, "defaultTextFontSize",   20);
-set(groot, "defaultLegendFontSize", 13);
+set(groot, "defaultAxesFontSize",   25);
+set(groot, "defaultTextFontSize",   30);
+set(groot, "defaultLegendFontSize", 20);
 set(groot, "defaultColorbarFontSize", 20);
-
+set(groot, 'DefaultLineLineWidth', 3);
 
 if ishandle(99)
     close(99);
@@ -217,16 +217,17 @@ normalized_inv_wb_fit = inv_wb_fit / max(inv_wb_fit(300:num_points,:));
 
 title("Elbow Effective Reduction Ratio")
 xlabel("Elbow Angle [deg]")
-ylabel("Normalized Torque Outupt")
+ylabel("Effective Gear Ratio")
 % xlim([0 max(b_fit * 180 / pi)]);
-xlim([15 max(b_fit * 180 / pi)]);
-ylim([0 1]);
+% xlim([15 max(b_fit * 180 / pi)]);
+xlim([15 120])
+ylim([0.5 0.9]);
 hold on;
 legend('location','southeast');
-plot(b_human, inv_wb_human, "-o", "DisplayName", "Human Elbow Joint");
-exportgraphics(fig_reduction,"results/FIGURE_reduction_human.png","Resolution",300)
+% plot(b_human, inv_wb_human, "-o", "DisplayName", "Human Elbow Joint");
+% exportgraphics(fig_reduction,"results/FIGURE_reduction_human.png","Resolution",300)
 
-plot(b_fit * 180 / pi, normalized_inv_wb_fit,"DisplayName","RAIPAL Crossed 4-Bar");
+plot(b_fit * 180 / pi, inv_wb_fit,"DisplayName","RAIPAL Crossed 4-Bar");
 
 hold off;
 

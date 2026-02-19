@@ -40,18 +40,14 @@ num_points = 4000;
 a_domain = linspace(0,89.13041976,num_points)' * pi / 180 ;
 
 %% Global font scaling (2x)
-font_scale = 2.0;
-% set(groot, "defaultAxesFontSize",   get(groot, "defaultAxesFontSize")   * font_scale);
-% set(groot, "defaultTextFontSize",   get(groot, "defaultTextFontSize")   * font_scale);
-% set(groot, "defaultLegendFontSize", get(groot, "defaultLegendFontSize") * font_scale);
-% set(groot, "defaultColorbarFontSize", get(groot, "defaultColorbarFontSize") * font_scale);
-set(groot, "defaultAxesFontSize",   17);
-set(groot, "defaultTextFontSize",   20);
-set(groot, "defaultLegendFontSize", 13);
+set(groot, "defaultAxesFontSize",   25);
+set(groot, "defaultTextFontSize",   30);
+set(groot, "defaultLegendFontSize", 20);
 set(groot, "defaultColorbarFontSize", 20);
+set(groot, 'DefaultLineLineWidth', 3);
 %%
-load('/home/chh-railab/RAIPAL_CFB/results/v1-5_result_2026-02-09.mat')
-load('/home/chh-railab/RAIPAL_CFB/MOR/MOR_MHR.mat')
+load('results/v1-5_result_2026-02-09.mat')
+load('MOR/MOR_MHR.mat')
 %% Plot effective reduction ratio using polynomial coefficients
 % b(a) and wb(a) polynomial fits (highest to lowest degree)
 b_fit = polyval(cell2mat(coeff_gc_3to5), a_domain);
@@ -110,7 +106,7 @@ for idx = idx_start:frame_step:idx_end
   clf(fig_ts);
 
   hold on;
-  title("Torque-Speed (Output)");
+  title("Operating Region (Output)");
   xlabel("Speed [rad/s]");
   ylabel("Torque [Nm]");
   plot(MOR_keypoints_MHR_peak(:,1) / ratio_min, MOR_keypoints_MHR_peak(:,2) * ratio_min,"r--", "DisplayName", "MOR (max. speed)");
