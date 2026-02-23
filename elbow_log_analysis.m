@@ -106,12 +106,12 @@ for idx = idx_start:frame_step:idx_end
   clf(fig_ts);
 
   hold on;
-  title("Operating Region (Output)");
+  title("Elbow Mechanism Operating Region");
   xlabel("Speed [rad/s]");
   ylabel("Torque [Nm]");
-  plot(MOR_keypoints_MHR_peak(:,1) / ratio_min, MOR_keypoints_MHR_peak(:,2) * ratio_min,"r--", "DisplayName", "O.R. (max. speed)");
-  plot(MOR_keypoints_MHR_peak(:,1) / ratio_max, MOR_keypoints_MHR_peak(:,2) * ratio_max,"g--", "DisplayName", "O.R. (max. torque)");
-  plot(MOR_keypoints_MHR_peak(:,1), MOR_keypoints_MHR_peak(:,2),"b--", "DisplayName", "O.R. (input)");
+  plot(MOR_keypoints_MHR_peak(:,1) / ratio_min, MOR_keypoints_MHR_peak(:,2) * ratio_min,"r--", "DisplayName", "O.R. (@ max. speed)");
+  plot(MOR_keypoints_MHR_peak(:,1) / ratio_max, MOR_keypoints_MHR_peak(:,2) * ratio_max,"g--", "DisplayName", "O.R. (@ max. torque)");
+  plot(MOR_keypoints_MHR_peak(:,1), MOR_keypoints_MHR_peak(:,2),"b--", "DisplayName", "O.R. (Actuator)");
   plot(MOR_keypoints_MHR_peak(:,1) / inv_wb_fit(idx), MOR_keypoints_MHR_peak(:,2) * inv_wb_fit(idx),"k-", "DisplayName", sprintf("O.R. (gc = %.3f)",b_fit(idx)));
   xlim(x_limits);
   ylim(y_limits);
@@ -137,12 +137,14 @@ end
 
 if save_movie
   close(v);
+  close(fig_ts);
+  disp("Movie Saved a t " + movie_file)
 end
 
 %%
-filename="raipal_2026-02-19-00-32-43_strongman-sim_55kg_clamped-clean";
-% filename="elbow_/raipal_2026-02-11-14-04-39_payload_20kg";
-% filename="elbow_/raipal_2026-02-16-05-00-10_pitching-demo_x1.25_20.6_elbow";
+% filename="raipal_2026-02-19-00-32-43_strongman-sim_55kg_clamped-clean";
+filename="raipal_2026-02-16-05-00-10_pitching-demo_x1.25_20.6_elbow";
+% % filename="elbow_/raipal_2026-02-11-14-04-39_payload_20kg";
 load("log_data/elbow_/" + filename)
 load("MOR/MOR_MHR")
 
@@ -152,7 +154,7 @@ da = a_domain(2) - a_domain(1);
 log_gf_output = zeros(length(log_gf_input),1);
 
 for i = 1:length(log_gf_input)
-    ratio_current = inv_wb_fit(round(log_gc_input(i) / da));
+    ratio_current = inv_wb_fit(round(log_gc_input(i) / da)); 
 %     log_gc_input(i) - a_domain(round(log_gc_input(i) / da))
     log_gf_output(i) = log_gf_input(i) * ratio_current;
 end
@@ -160,8 +162,8 @@ end
 %% Animating torque-speed curve with position-dependent MOR
 idx_start = 1;
 idx_end = length(log_time);
-frame_step = 10;
-% frame_step = 2;
+% frame_step = 10;
+frame_step = 2;
 save_movie = true;
 movie_file = "videos/ts_"+filename+".avi";
 
@@ -190,34 +192,34 @@ for idx = idx_start:frame_step:idx_end
 
   subplot(1,2,1);
   hold on;
-  title("Torque-Speed (Input)");
+  title("Torque-Speed (Actuator)");
   xlabel("Speed [rad/s]");
   ylabel("Torque [Nm]");
-  plot(log_gv_input, log_gf_input, "DisplayName", "Input");
-  plot(MOR_keypoints_MHR_peak(:,1), MOR_keypoints_MHR_peak(:,2), "DisplayName", "O.R. (input)");
-  scatter([log_gv_input(idx)], [log_gf_input(idx)],"MarkerEdgeColor","red","LineWidth",2.0, "DisplayName", sprintf("t = %.3f",log_time(idx)))
+  tr = plot(log_gv_input, log_gf_input, "DisplayName", "Trace");
+  or_act = plot(MOR_keypoints_MHR_peak(:,1), MOR_keypoints_MHR_peak(:,2), "DisplayName", "O.R. (Actuator)");
+  t = scatter([log_gv_input(idx)], [log_gf_input(idx)],"MarkerEdgeColor","red","LineWidth",2.0, "DisplayName", sprintf("t = %.3f",log_time(idx)));
   xlim(x_limits);
   ylim(y_limits);
-  lgd = legend('location','southwest');
+  lgd = legend([t or_act] ,'location','southwest');
   lgd.BackgroundAlpha = 0.95;
   hold off;
 
   subplot(1,2,2);
   hold on;
-  title("Torque-Speed (Output)");
+  title("Torque-Speed (Output Joint)");
   xlabel("Speed [rad/s]");
   ylabel("Torque [Nm]");
-  plot(log_gv_output, log_gf_output, "DisplayName", "Output");
-  plot(MOR_keypoints_MHR_peak(:,1) / ratio_min, MOR_keypoints_MHR_peak(:,2) * ratio_min,"r--", "DisplayName", "O.R. (max. speed)");
-  plot(MOR_keypoints_MHR_peak(:,1) / ratio_max, MOR_keypoints_MHR_peak(:,2) * ratio_max,"g--", "DisplayName", "O.R. (max. torque)");
-  plot(MOR_keypoints_MHR_peak(:,1), MOR_keypoints_MHR_peak(:,2),"b--", "DisplayName", "O.R. (input)");
+  tr = plot(log_gv_output, log_gf_output, "DisplayName", "Output");
+  or_speed = plot(MOR_keypoints_MHR_peak(:,1) / ratio_min, MOR_keypoints_MHR_peak(:,2) * ratio_min,"r--", "DisplayName", "O.R. (max. speed)");
+  or_torque = plot(MOR_keypoints_MHR_peak(:,1) / ratio_max, MOR_keypoints_MHR_peak(:,2) * ratio_max,"g--", "DisplayName", "O.R. (max. torque)");
+  or_act = plot(MOR_keypoints_MHR_peak(:,1), MOR_keypoints_MHR_peak(:,2),"b--", "DisplayName", "O.R. (Actuator)");
 %   ratio_current = log_gv_input(idx) / log_gv_output(idx);
   ratio_current = inv_wb_fit(round(log_gc_input(idx) / da));
-  plot(MOR_keypoints_MHR_peak(:,1) / ratio_current, MOR_keypoints_MHR_peak(:,2) * ratio_current,"k-", "DisplayName", sprintf("O.R. (gc = %.3f)",log_gc_output(idx)));
-  scatter([log_gv_output(idx)], [log_gf_output(idx)],"MarkerEdgeColor","red","LineWidth",2.0, "DisplayName", sprintf("t = %.3f",log_time(idx)))
+  or_now = plot(MOR_keypoints_MHR_peak(:,1) / ratio_current, MOR_keypoints_MHR_peak(:,2) * ratio_current,"k-", "DisplayName", sprintf("O.R. (gc = %.3f)",log_gc_output(idx)));
+  t = scatter([log_gv_output(idx)], [log_gf_output(idx)],"MarkerEdgeColor","red","LineWidth",2.0, "DisplayName", sprintf("t = %.3f",log_time(idx)));
   xlim(x_limits);
   ylim(y_limits);
-  lgd = legend('location','southwest');
+  lgd = legend([t or_now or_speed or_torque or_act], 'location','southwest');
   lgd.BackgroundAlpha = 0.95;
   hold off;
 
@@ -243,4 +245,6 @@ end
 
 if save_movie
   close(v);
+  close(fig_ts);
+  disp("Movie Saved at " + movie_file)
 end
