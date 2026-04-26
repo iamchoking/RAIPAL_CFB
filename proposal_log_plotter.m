@@ -1,15 +1,16 @@
 %%
 cfg = struct();
-cfg.log.name = "raipal_2026-02-11-14-04-39_payload_20kg";
-cfg.log.startIdx = 42000;
-cfg.log.endIdx = 48000;
+cfg.log.name = "raipal_2026-04-01-14-48-18_20kg-LEFT";
+cfg.log.startIdx = 28000;
+cfg.log.endIdx = 36000;
 
 cfg.plot.title = "Upper Arm Torque";
-cfg.plot.x = {'time','time','time','time'};
+% cfg.plot.x = {'time','time','time','time'};
+cfg.plot.x = {'index','index','index','index'};
 cfg.plot.xLabel = 'Time [s]';
-cfg.plot.y = {'actualTorque_0','actualTorque_1','actualTorque_2','actualTorque_3'};
+cfg.plot.y = {'actualTorque_7','actualTorque_8','actualTorque_9','actualTorque_10'};
 cfg.plot.yLabel = 'Torque [Nm]';
-cfg.plot.legends = {'\tau_0 (Flexion)','\tau_1 (Adduction)','\tau_2 (Rotation)','\tau_3 (Elbow)'};
+cfg.plot.legends = {'\tau_{0L} (Flexion)','\tau_{1L} (Adduction)','\tau_{2L} (Rotation)','\tau_{3L} (Elbow)'};
 
 %%
 cfg = struct();
@@ -56,7 +57,7 @@ set(groot, "defaultTextFontSize",   30);
 set(groot, "defaultLegendFontSize", 20);
 set(groot, "defaultColorbarFontSize", 20);
 set(groot, 'DefaultLineLineWidth', 3);
-%%
+%% Actual plotting part
 log_data = csvToDictionary("log_data\raw\" + cfg.log.name + ".csv", cfg.log.startIdx, cfg.log.endIdx);
 
 if numel(cfg.plot.x) ~= numel(cfg.plot.y) || numel(cfg.plot.y) ~= numel(cfg.plot.legends)
@@ -73,19 +74,22 @@ for i = 1:numel(cfg.plot.y)
 	x_key = cfg.plot.x{i};
 	y_key = cfg.plot.y{i};
 
-	if ~isKey(log_data, x_key)
+	if ~isKey(log_data, x_key) && ~strcmp(x_key,'index')
 		error('Missing x key in log_data: %s', x_key);
 	end
 	if ~isKey(log_data, y_key)
 		error('Missing y key in log_data: %s', y_key);
 	end
     
-	if strcmp(x_key, 'time')
+    if strcmp(x_key, 'index')
+        x_vals = (cfg.log.startIdx:1:cfg.log.endIdx)';
+    elseif strcmp(x_key, 'time')
         x_vals = log_data(x_key)/1e6;
     else
     	x_vals = log_data(x_key);
     end
-	y_vals = log_data(y_key);
+
+    y_vals = log_data(y_key);
 
     if i == 1
         x_limits = [min(x_vals) max(x_vals)];

@@ -1,4 +1,6 @@
-% Coefficients from CFB_approx polynomial fit
+%%
+clear; clc;
+%% Coefficients from CFB_approx polynomial fit
 coeff_gc_3to5 = {
   7.487348861572753, -88.17268027058002, 470.7676589474978, -1507.949571146181, ...
   3232.924175366478, -4903.587201465159, 5428.248858581333, -4464.681332539945, ...
@@ -39,12 +41,19 @@ coeff_gc_5to3= {
 num_points = 4000;
 a_domain = linspace(0,89.13041976,num_points)' * pi / 180 ;
 
-%% Global font scaling
-set(groot, "defaultAxesFontSize",   25);
-set(groot, "defaultTextFontSize",   30);
-set(groot, "defaultLegendFontSize", 20);
-set(groot, "defaultColorbarFontSize", 20);
-set(groot, 'DefaultLineLineWidth', 3);
+%% Global font scaling (for presentation)
+% set(groot, "defaultAxesFontSize",   25);
+% set(groot, "defaultTextFontSize",   30);
+% set(groot, "defaultLegendFontSize", 20);
+% set(groot, "defaultColorbarFontSize", 20);
+% set(groot, 'DefaultLineLineWidth', 3);
+
+%% Global font scaling (for paper figures)
+set(groot, "defaultAxesFontSize",   12);
+set(groot, "defaultTextFontSize",   15);
+set(groot, "defaultLegendFontSize", 12);
+set(groot, "defaultColorbarFontSize", 12);
+set(groot, 'DefaultLineLineWidth', 2);
 %%
 load('results/v1-5_result_2026-02-09.mat')
 load('MOR/MOR_MHR.mat')
@@ -63,14 +72,14 @@ fig_reduction = figure(99);
 title("RAIPAL Crossed 4-bar Effective Reduction Ratio")
 xlabel("Elbow Angle [deg]")
 ylabel("Normalized Torque Outupt")
-xlim([15 max(b_fit * 180 / pi)]);
-ylim([0 1]);
+xlim([15 120]);
+ylim([0.4 1]);
 hold on;
 legend;
 plot(b_fit * 180 / pi, inv_wb_fit, "DisplayName", "RAIPAL Crossed 4-Bar");
 hold off;
-
-% exportgraphics(fig_reduction, "results/FIGURE_reduction_from_coeffs.fig", "Resolution", 300)
+%%
+exportgraphics(fig_reduction, "results/FIGURE_reduction_from_coeffs.pdf", "Resolution", 300)
 %% 
 ratio_min = 0.5311;
 ratio_max = 0.875;
