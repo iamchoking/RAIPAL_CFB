@@ -20,8 +20,9 @@ b_sing = [-6.16480061 150.05312056] * pi / 180;
 % Allowed range of motion for b: 0 to 130 deg
 
 % Calculated table is wider including some margin around normal operating range
-num_points = 4000;
+num_points = 4096;
 b_table = linspace(-5, 135, num_points)' * pi / 180;
+fprintf("Table step: %e deg\n",(b_table(2) - b_table(1)) * 180 / pi)
 
 % Hard-coded Ground Truth
 GT_a = [0 10 20 30 40 50 60 70 80 89.13041976]' * pi/180;

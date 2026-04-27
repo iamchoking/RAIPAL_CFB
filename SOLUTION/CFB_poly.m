@@ -6,7 +6,7 @@ close all;
 %%
 load("results/cfb_table.mat")
 %% Polynomial degree
-n = 16; %polynomial degree
+n = 15; %polynomial degree
 
 range = dictionary;
 range("joint position") = {[0 130] / 180 * pi};
@@ -14,7 +14,7 @@ range("actuator position") = {[0 89.13041976] / 180 * pi};
 
 %% Fit polynomial for a
 coeffs = struct();
-[coeffs.btoa,~] = polyfit_analyze(b_table,"joint position",a_table,"actuator position",n,'deg',1,range);
+[coeffs.jointpos_to_actuatorpos,~] = polyfit_analyze(b_table,"joint position",a_table,"actuator position",n,'deg',1,range);
 
 save('results/cfb_coeffs.mat',"coeffs")
 
