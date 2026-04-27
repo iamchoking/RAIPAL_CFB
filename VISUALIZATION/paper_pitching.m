@@ -168,7 +168,7 @@ w_pitch = log_pitch('genVelocity_16');
 %% Dual-axis plot
 fig = figure('Color','w');
 set(fig, 'Units', 'centimeters', 'Position', fig_size);
-ax = axes(fig); %#ok<LAXES>
+ax = axes(fig);
 hold(ax, 'on');
 grid(ax, 'on');
 

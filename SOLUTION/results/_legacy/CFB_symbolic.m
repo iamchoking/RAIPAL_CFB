@@ -1,3 +1,5 @@
+% objective: create a table to approximate polynomial CFB solutions.
+
 clc 
 clear
 
@@ -99,21 +101,6 @@ for i = 1:length(alpha_range)
 end
 
 fprintf('table calculated\n\n')
-
-p = polyfit(alpha_range,beta_range,15);
-beta_fitted = polyval(p,alpha_range);
-
-%%
-fprintf('Polynomial coefficients (highest to lowest degree):\n');
-disp(vpa(p,10));
-
-L2_error   = norm(beta_range - beta_fitted)^2 / num_points;
-mean_error = mean(abs(beta_range - beta_fitted));
-max_error  =  max(abs(beta_range - beta_fitted));
-
-fprintf('Mean Square error: %.6e\n', L2_error);
-fprintf('Mean difference: %.6e\n', mean_error);
-fprintf('Max  difference: %.6e\n',  max_error);
 
 %%
 figure;
