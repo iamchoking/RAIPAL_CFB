@@ -20,7 +20,7 @@ b_sing = [-6.16480061 150.05312056] * pi / 180;
 % Allowed range of motion for b: 0 to 130 deg
 
 % Calculated table is wider including some margin around normal operating range
-num_points = 4096;
+num_points = 5000;
 b_table = linspace(-5, 135, num_points)' * pi / 180;
 fprintf("Table step: %e deg\n",(b_table(2) - b_table(1)) * 180 / pi)
 
@@ -53,8 +53,16 @@ dda_db2_sym = simplify( ...
     -(Fbb + 2*Fab*da_db_sym + Faa*da_db_sym^2) / Fa ...
 );
 
+% Forward derivatives: db/da and d2b/da2
+db_da_sym = simplify(-Fa / Fb);
+ddb_da2_sym = simplify( ...
+    -(Faa + 2*Fab*db_da_sym + Fbb*db_da_sym^2) / Fb ...
+);
+
 da_fun  = matlabFunction(da_db_sym,   'Vars', {a_sym, b_sym});
 dda_fun = matlabFunction(dda_db2_sym, 'Vars', {a_sym, b_sym});
+db_fun  = matlabFunction(db_da_sym,   'Vars', {a_sym, b_sym});
+ddb_fun = matlabFunction(ddb_da2_sym, 'Vars', {a_sym, b_sym});
 
 fprintf('Symbolic derivatives generated\n\n');
 
@@ -170,9 +178,17 @@ da_table = da_table(:);
 dda_table = dda_fun(a_table, b_table);
 dda_table = dda_table(:);
 
+db_table = db_fun(a_table, b_table);
+db_table = db_table(:);
+
+ddb_table = ddb_fun(a_table, b_table);
+ddb_table = ddb_table(:);
+
 % Optional finite-difference checks
 da_table_fd = gradient(a_table, b_table);
 dda_table_fd = gradient(da_table_fd, b_table);
+db_table_fd = gradient(b_table, a_table);
+ddb_table_fd = gradient(db_table_fd, a_table);
 
 % Restrict error search to allowed range of motion for b
 b_min = 0 * pi/180;
@@ -187,6 +203,20 @@ b_dda_max_deg = b_table(allowed_idx(rel_idx_dda_max)) * 180/pi;
 fprintf('Derivative Error check (analytic vs finite diff, allowed b range):\n');
 fprintf('  da/db    Maximum Error: %.5e at b = %.8f deg\n', da_error_max  , b_da_max_deg);
 fprintf('  dda/db2  Maximum Error: %.5e at b = %.8f deg\n', dda_error_max , b_dda_max_deg);
+
+% Restrict error search to allowed range of motion for a
+a_min = 0 * pi/180;
+a_max = 89.13041976 * pi/180;
+allowed_idx = find(a_table >= a_min & a_table <= a_max);
+
+[db_error_max, rel_idx_db_max] = max(abs(db_table(allowed_idx) - db_table_fd(allowed_idx)));
+[ddb_error_max, rel_idx_ddb_max] = max(abs(ddb_table(allowed_idx) - ddb_table_fd(allowed_idx)));
+a_db_max_deg = a_table(allowed_idx(rel_idx_db_max)) * 180/pi;
+a_ddb_max_deg = a_table(allowed_idx(rel_idx_ddb_max)) * 180/pi;
+
+fprintf('Derivative Error check (analytic vs finite diff, allowed a range):\n');
+fprintf('  db/da    Maximum Error: %.5e at a = %.8f deg\n', db_error_max  , a_db_max_deg);
+fprintf('  ddb/da2  Maximum Error: %.5e at a = %.8f deg\n', ddb_error_max , a_ddb_max_deg);
 
 fprintf('Table calculated\n\n');
 
@@ -207,6 +237,7 @@ params.b0_deg = b0 * 180/pi;
 params.c0_deg = c0 * 180/pi;
 
 params.a_sing = a_sing;
+params.b_sing = b_sing;
 
 params.num_points = num_points;
 params.branch_name = branch_name;
@@ -218,7 +249,10 @@ if ~exist(results_dir, 'dir')
 end
 
 save(fullfile(results_dir, 'cfb_table.mat'), ...
-    'params', 'a_table', 'b_table', 'c_table', 'da_table', 'dda_table');
+    'params', ...
+    'a_table', 'b_table', 'c_table', ...
+    'da_table', 'dda_table', ...
+    'db_table', 'ddb_table');
 
 fprintf('Saved table to %s\n', fullfile(results_dir, 'cfb_table.mat'));
 
@@ -228,23 +262,23 @@ b_table_deg  = b_table  * 180/pi;
 c_table_deg  = c_table  * 180/pi;
 
 if make_plots
-    fig = figure('Name', 'CFB Tables and Derivatives', 'Position', [100, 100, 1200, 900]);
+    fig = figure('Name', 'CFB Tables and Derivatives', 'Position', [100, 100, 1400, 900]);
 
-    subplot(2,2,1);
+    subplot(2,3,1);
     plot(b_table_deg, a_table_deg, 'LineWidth', 1.5);
     grid on;
     xlabel('b [deg]');
     ylabel('a [deg]');
     title('a table');
 
-    subplot(2,2,2);
+    subplot(2,3,2);
     plot(b_table_deg, c_table_deg, 'LineWidth', 1.5);
     grid on;
     xlabel('b [deg]');
     ylabel('c [deg]');
     title('c table');
 
-    subplot(2,2,3);
+    subplot(2,3,3);
     plot(b_table_deg, da_table, 'LineWidth', 1.5);
     hold on;
     plot(b_table_deg, da_table_fd, '--');
@@ -254,7 +288,7 @@ if make_plots
     legend('analytic', 'finite difference');
     title('First derivative');
 
-    subplot(2,2,4);
+    subplot(2,3,4);
     plot(b_table_deg, dda_table, 'LineWidth', 1.5);
     hold on;
     plot(b_table_deg, dda_table_fd, '--');
@@ -263,6 +297,26 @@ if make_plots
     ylabel('d^2a/db^2');
     legend('analytic', 'finite difference');
     title('Second derivative');
+
+    subplot(2,3,5);
+    plot(a_table_deg, db_table, 'LineWidth', 1.5);
+    hold on;
+    plot(a_table_deg, db_table_fd, '--');
+    grid on;
+    xlabel('a [deg]');
+    ylabel('db/da');
+    legend('analytic', 'finite difference');
+    title('Forward first derivative');
+
+    subplot(2,3,6);
+    plot(a_table_deg, ddb_table, 'LineWidth', 1.5);
+    hold on;
+    plot(a_table_deg, ddb_table_fd, '--');
+    grid on;
+    xlabel('a [deg]');
+    ylabel('d^2b/da^2');
+    legend('analytic', 'finite difference');
+    title('Forward second derivative');
 
     % Save the figure as a PDF with the same size as the figure window
     pdf_path = fullfile(results_dir, 'cfb_solution_plots.pdf');

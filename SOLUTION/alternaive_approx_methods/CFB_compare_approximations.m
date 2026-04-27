@@ -7,7 +7,7 @@ close all;
 load("../results/cfb_table.mat")
 
 %% Comparison settings
-simple_poly_degree = 15;
+simple_poly_degree = 31;
 piecewise_degree = 5;
 num_segments = 28; % 5 deg segments over the full -5 to 135 deg table range
 num_timing_repeats = 200;
