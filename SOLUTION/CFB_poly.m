@@ -44,7 +44,7 @@ function [coeffs,output_fit] = poly_analyze(table,name,units,num_degrees,fit_mod
     input_units = units(1);
     output_units = units(2);
 
-    func_name = sprintf('%s -> %s',input_name,output_name);
+    func_name = sprintf('%s-%s',output_name,input_name);
     num_points = length(input_table);
 
     factors = [1 1];
