@@ -6,7 +6,12 @@ clear;
 load("results/cfb_coeffs.mat")
 
 precision = 17;
-output_path = "results/cfbParameters.hpp";
+output_path = fullfile("results", "raipal_solution", "cfbSolution.hpp");
+output_dir = fileparts(output_path);
+
+if ~exist(output_dir, "dir")
+    mkdir(output_dir);
+end
 
 fid = fopen(output_path, "w");
 if fid < 0
@@ -39,6 +44,8 @@ if exist("coeffs_a", "var")
     print_cfb_param(fid, "fromActuator", coeffs_a.to_b, coeffs_a.to_db, coeffs_a.to_ddb, precision);
 end
 
+fprintf(fid, "inline constexpr double actuatorInertia = 0.00134589; // corresponds to the inertia of elb_input / elb_bar\n\n");
+
 fprintf(fid, "template <std::size_t N>\n");
 fprintf(fid, "constexpr double evalPoly(const std::array<double, N>& p, double x) {\n");
 fprintf(fid, "    double y = p[0];\n");
@@ -64,7 +71,7 @@ function print_cfb_param(fid, var_name, coeff0, coeff1, coeff2, precision)
     validate_compatible_coeffs(var_name, coeff0, coeff1, coeff2);
     n = numel(coeff0.coeffs);
 
-    fprintf(fid, "inline static constexpr cfbParam<%d> %s = {\n", n, var_name);
+    fprintf(fid, "inline constexpr cfbParam<%d> %s = {\n", n, var_name);
     fprintf(fid, "    %s,\n", format_scalar(coeff0.min, precision));
     fprintf(fid, "    %s,\n", format_scalar(coeff0.max, precision));
     print_vector_expr(fid, "coeff0", coeff0.coeffs(:), precision, true);
